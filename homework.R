@@ -18,7 +18,7 @@
 # Load the readr package
 
 # ANSWER
-
+library(readr) #does this mean we don't always need to use chunks?
 
 ### QUESTION 2 ----- 
 
@@ -46,7 +46,7 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 
 # ANSWER
 
-
+ds1 <- read_tsv("data_A/6191_1.txt", skip = 7, col_names = col_names) #Questions - when do you know " vs. ', why skip 7 (goes from 1 column to 4)
 
 ### QUESTION 3 ----- 
 
@@ -55,7 +55,9 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 # Then write the new data to a CSV file in the "data_cleaned" folder
 
 # ANSWER
+ds1$newtrail_num <- ds1$trial_num + 100
 
+write_csv(ds1, "data_cleaned/6191_1_cleaned.csv") #Question: can this function make a folder, or do you make it in advanced? if making a folder, don't include in Data A (will mess up combining function)
 
 ### QUESTION 4 ----- 
 
@@ -64,6 +66,8 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 
 # ANSWER
 
+full_data_A <- list.files('data_A', full.names = TRUE)
+
 
 ### QUESTION 5 ----- 
 
@@ -71,6 +75,7 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 
 # ANSWER
 
+ds <- read_tsv(full_data_A, skip = 7, col_names = col_names) 
 
 ### QUESTION 6 -----
 
@@ -84,6 +89,13 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 
 # ANSWER
 
+ds$trail_100 <- ds$trial_num + 100
+
+coltypes = "iccl" #Question: why can't we type this straight into the formula? why is it better to have as a variable?
+
+ds <- read_tsv(full_data_A, skip = 7, col_names = col_names, col_types = coltypes) 
+
+ds$trail_100 <- ds$trial_num + 100
 
 ### QUESTION 7 -----
 
@@ -93,6 +105,8 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 # Re-import the data so that filename becomes a column
 
 # ANSWER
+ds <- read_tsv(full_data_A, skip = 7, col_names = col_names, col_types = coltypes, id = "filename") 
+ds$trail_100 <- ds$trial_num + 100
 
 
 ### QUESTION 8 -----
@@ -103,3 +117,10 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 
 # ANSWER
 
+library(readxl)
+
+datab_1 <- read_excel("data_B/participant_info.xlsx", sheet = 1)
+
+col_names2 <- c("Participant","Test Date")
+
+datab_2 <- read_excel("data_B/participant_info.xlsx", sheet = 2, col_names = col_names2)
