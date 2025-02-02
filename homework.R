@@ -18,7 +18,7 @@
 # Load the readr package
 
 # ANSWER
-
+library(readr)
 
 ### QUESTION 2 ----- 
 
@@ -44,9 +44,10 @@
 
 col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 
+
 # ANSWER
 
-
+ds1 <- read_table("data_A/6191_1.txt", col_names = col_names, skip = 7)
 
 ### QUESTION 3 ----- 
 
@@ -55,6 +56,10 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 # Then write the new data to a CSV file in the "data_cleaned" folder
 
 # ANSWER
+library(dplyr)
+ds1 <- ds1 %>%
+  mutate(trial_num_new = trial_num + 100)
+write_csv(ds1, "data_cleaned/6191_1_cleaned.csv")
 
 
 ### QUESTION 4 ----- 
@@ -63,14 +68,16 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 # Store it to a variable
 
 # ANSWER
-
+fnames <- list.files("data_A", full.names = TRUE)
+print(fnames)
 
 ### QUESTION 5 ----- 
 
 # Read all of the files in data_A into a single tibble called ds
 
 # ANSWER
-
+ds <- read_tsv(fnames, skip = 7, col_names = col_names) #I was not expecting this to work this easy. because fnames is a vector of multiple file paths, read_tsv() wouldn't normally work, because it wants a single file path.
+#but it did work!
 
 ### QUESTION 6 -----
 
@@ -84,6 +91,20 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 
 # ANSWER
 
+library(tidyverse)
+ds <- read_tsv(fnames, skip = 7, col_names = col_names, col_types = "iccl",id = "filename", )
+ds$trial_num_100 <- ds$trial_num + 100
+
+# now I try to handle missing trial numbers by using previous and next values
+ds <- ds %>% group_by(filename) %>% 
+  mutate(lag_trial = lag(trial_num) + 1,
+         lead_trial = lead(trial_num) - 1,
+         trial_num = ifelse(is.na(trial_num), lag_trial, trial_num),
+         trial_num = ifelse(is.na(trial_num), lead_trial, trial_num)) %>% 
+  select(-lag_trial, - lead_trial) %>% 
+  ungroup()
+#removing temp columns
+
 
 ### QUESTION 7 -----
 
@@ -93,7 +114,13 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 # Re-import the data so that filename becomes a column
 
 # ANSWER
-
+ds <- ds %>%
+  mutate(
+    filename = basename(filename),  #6192_3.txt
+    participant = as.integer(str_extract(filename, "^\\d+")), #participant ID
+    block = as.integer(str_extract(filename, "(?<=_)\\d+(?=\\.txt)"))  #block number
+  ) %>%
+  select(participant, block, everything(), -filename)  
 
 ### QUESTION 8 -----
 
@@ -102,4 +129,5 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 # There are two sheets of data -- import each one into a new tibble
 
 # ANSWER
-
+install.packages("readxl")
+library(readxl)
