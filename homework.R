@@ -1,5 +1,5 @@
 #PSYC 259 Homework 1 - Data Import
-#For full credit, provide answers for at least 6/8 questions
+#For full credit, provide answers for at least 6/8 questions (7/8)
 
 #List names of students collaborating with (no more than 2): 
 
@@ -105,6 +105,11 @@ ds <- ds %>% group_by(filename) %>%
   ungroup()
 #removing temp columns
 
+#MComment: Cool fix! John also recommends since it is only 1 trial you could hardcode it
+ds <- read_tsv(fnames, skip = 7, col_names = col_names, col_types = "iccl") 
+ds <- ds %>% mutate(
+  trial_num = ifelse(filename == "data_A/6191_5.txt" & is.na(trial_num), 20, trial_num)
+) 
 
 ### QUESTION 7 -----
 
@@ -122,6 +127,9 @@ ds <- ds %>%
   ) %>%
   select(participant, block, everything(), -filename)  
 
+#MComment: Good job pulling out the info from the file name, in terms of bringing into the data frame you can just use the id command
+ds <- read_tsv(fnames, skip = 7, col_names = col_names, col_types = "iccl", id = "filename")
+
 ### QUESTION 8 -----
 
 # Your PI emailed you an Excel file with the list of participant info 
@@ -131,3 +139,7 @@ ds <- ds %>%
 # ANSWER
 install.packages("readxl")
 library(readxl)
+
+#Key:
+ppt_info <- read_xlsx("data_B/participant_info.xlsx")
+test_dates <- read_xlsx("data_B/participant_info.xlsx", col_names = c("participant", "test_date"), sheet = 2)
